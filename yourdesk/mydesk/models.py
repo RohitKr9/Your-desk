@@ -2,11 +2,18 @@ from django.db import models
 from django.core.validators import MaxValueValidator, MinValueValidator
 
 # Create your models here.
+class MailId(models.Model):
+    mail_id = models.EmailField()
+    otp = models.IntegerField(null=True)
+
+    class Meta:
+        db_table = "mail_id"
+
 class User(models.Model):
 
     first_name = models.CharField(max_length=20)
     last_name = models.CharField(max_length=20)
-    email_id = models.EmailField(max_length=100)
+    email_id = models.OneToOneField(MailId, on_delete=models.CASCADE)
     password = models.CharField(max_length=50)
 
     class Meta:
@@ -75,8 +82,8 @@ class TeamMember(models.Model):
 
 class MessageTableUser(models.Model):
 
-    sender = models.ForeignKey(User, on_delete=models.SET_NULL, null=True)
-    reciver = models.ForeignKey(User, on_delete=models.SET_NULL, null=True)
+    sender = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, related_name= "sender_user")
+    reciver = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, related_name= "reciver_user")
     content = models.TextField()
     time_stamp = models.DateTimeField()
 

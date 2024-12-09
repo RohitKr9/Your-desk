@@ -40,3 +40,34 @@ class MailOtp(View):
             return JsonResponse({}, status = 200)
         return JsonResponse({}, status = 400)
 
+class UserDetails(View):
+
+    def post(self, request):
+        data = json.loads(request.body)
+        try:
+            mail_id = MailId.objects.get(mail_id = data.get("mail_id"))
+        except MailId.DoesNotExist:
+            return JsonResponse({"msg":"Mail Id not found in record",}, status = 400)
+        user = User(first_name = data.get("first_name"),
+                    last_name = data.get("last_name"),
+                    password = data.get("password"),
+                    mail_id = mail_id)
+        user.save()
+
+        return JsonResponse({"msg":"User saved to record"}, status = 201)
+    
+class UserLogin(View):
+
+    def post(self, request):
+        data = json.loads(request.body)
+        try:
+            mail_id = MailId.objects.get(mail_id = data.get("mail_id"))
+        except MailId.DoesNotExist:
+            return JsonResponse({"msg":"Mail Id not found in record",}, status = 400)
+        
+        _password = data.get("password")
+        password = User.objects.get(mail_id = mail_id).password
+
+        if _password == password:
+            return JsonResponse({"msg":"Password Validated"}, status = 200)
+        return JsonResponse({"msg":"incorrect password"}, status = 401)

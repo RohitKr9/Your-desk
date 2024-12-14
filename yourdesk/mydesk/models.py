@@ -33,6 +33,7 @@ class Project(models.Model):
 class Task(models.Model):
 
     class Status(models.TextChoices):
+        NOT_ASSIGNED = "NA"
         NOT_STARTED = "NS"
         IN_PROGRESS = "IP"
         DELAYED = "DELY"

@@ -4,28 +4,32 @@ from mydesk.models import User, MailId, Project,Task
 from django.http.response import JsonResponse
 from mydesk.utils.utils_otp import sendMail
 import json
-from django.core import serializers
 from django.forms.models import model_to_dict
+from Accounts.tokenauthentication import JWTAuthentication
+from django.contrib.auth import authenticate, login, mixins
+
+from django.contrib.auth import get_user_model
+
+User = get_user_model()
 
 # Create your views here.
 class UserMail(View):
 
     def post(self, request):
-        #mail_id = request.POST["mail_id"]
+        #email = request.POST["email"]
         data = json.loads(request.body)
-        mail_id = data.get('mail_id')
+        email_str = data.get('email')
+        # email = User.objects.get(email = email)
         status = 200
         try:
-            email = MailId.objects.get(mail_id = mail_id)
-
-            #sending 200 for logi
+            email = MailId.objects.get(email = email_str)
         except MailId.DoesNotExist:
-            email = MailId(mail_id = mail_id)
+            email = MailId(email = email_str)
             email.save()
             status = 201
         finally:
-            otp = sendMail(mail_id)
-            email = MailId.objects.get(mail_id = mail_id)
+            otp = sendMail(email)
+            email = MailId.objects.get(email = email_str)
             email.otp = otp
             email.save()
             return JsonResponse({"msg" : "otp sent",}, status = status)
@@ -35,9 +39,10 @@ class MailOtp(View):
     def post(self, request):
         data = json.loads(request.body)
         _otp = data.get('otp')
-        mail_id = data.get('mail_id')
-        mail_id = MailId.objects.get(mail_id = mail_id)
-        otp = mail_id.otp
+        _email = data.get('email')
+        print(_email)
+        email_obj = MailId.objects.get(email = _email)
+        otp = email_obj.otp
         if _otp == otp :
             return JsonResponse({}, status = 200)
         return JsonResponse({}, status = 400)
@@ -47,32 +52,63 @@ class UserDetails(View):
     def post(self, request):
         data = json.loads(request.body)
         try:
-            mail_id = MailId.objects.get(mail_id = data.get("mail_id"))
+            email = MailId.objects.get(email = data.get("email"))
         except MailId.DoesNotExist:
-            return JsonResponse({"msg":"Mail Id not found in record",}, status = 400)
-        user = User(first_name = data.get("first_name"),
-                    last_name = data.get("last_name"),
-                    password = data.get("password"),
-                    mail_id = mail_id)
-        user.save()
+            return JsonResponse({"msg":"Mail Id not found in record, pls validated the otp first",}, status = 400)
+        
+        email = email.email
+        password = data.get("password")
+        first_name = data.get("first_name")
+        last_name = data.get("last_name")
+        print(email) #here i am getting string
+        print(password)
+        print(first_name)
+        print(last_name)
 
+        User.objects.create_user(
+                    email = email,
+                    password = password,
+                    first_name = first_name,
+                    last_name = last_name
+                    )
+        
         return JsonResponse({"msg":"User saved to record"}, status = 201)
     
 class UserLogin(View):
 
     def post(self, request):
-        data = json.loads(request.body)
-        try:
-            mail_id = MailId.objects.get(mail_id = data.get("mail_id"))
-        except MailId.DoesNotExist:
-            return JsonResponse({"msg":"Mail Id not found in record",}, status = 400)
-        
-        _password = data.get("password")
-        password = User.objects.get(mail_id = mail_id).password
 
-        if _password == password:
-            return JsonResponse({"msg":"Password Validated"}, status = 200)
-        return JsonResponse({"msg":"incorrect password"}, status = 401)
+        data = json.loads(request.body)
+        # try:
+        #     email = MailId.objects.get(email = data.get("email")) 
+        # except MailId.DoesNotExist:
+        #     return JsonResponse({"msg":"Mail Id not found in record",}, status = 400)
+        
+        try:
+            user = User.objects.get(email = data.get("email"))
+        except user.DoesNotExist:
+            return JsonResponse({"msg":"User not found in record, pls register first",}, status = 400)
+
+        _password = data.get("password")
+
+        print(user.email)
+        print(_password)
+
+        _email = user.email
+
+        # user = authenticate(username = _email, password = _password)
+        login(request=request, user=user)
+        print (user)
+
+        if user is not None:
+            # login(request=request, user=user)
+            token = JWTAuthentication.generate_token(data)
+            return JsonResponse({"msg":"Password Validated",
+                                 "token":str(token)}, status = 200)
+
+        else:
+            return JsonResponse({"msg":"incorrect password"}, status = 401)
+
 
 class ProjectView(View):
 

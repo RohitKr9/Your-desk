@@ -7,6 +7,7 @@ def generateOtp():
 
 def sendMail(mail_id):
     email = os.getenv("SENDER_MAIL")
+    print(email)
     reciver_mail = mail_id
 
     otp = generateOtp()
@@ -20,7 +21,10 @@ def sendMail(mail_id):
     server.starttls()
 
     password = os.getenv("MAIL_PASSWORD")
+    print(password)
     server.login(email, password)
-    server.sendmail(email, reciver_mail, text)
+    print(dir(reciver_mail))
+    print(reciver_mail.email)
+    server.sendmail(email, [reciver_mail.email], text)
     
     return otp

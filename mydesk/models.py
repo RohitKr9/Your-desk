@@ -1,23 +1,26 @@
 from django.db import models
 from django.core.validators import MaxValueValidator, MinValueValidator
+from django.contrib.auth import get_user_model
+
+User = get_user_model()
 
 # Create your models here.
 class MailId(models.Model):
-    mail_id = models.EmailField()
+    email = models.EmailField()
     otp = models.IntegerField(null=True)
 
     class Meta:
         db_table = "mail_id"
 
-class User(models.Model):
+# class User(models.Model):
 
-    first_name = models.CharField(max_length=20)
-    last_name = models.CharField(max_length=20)
-    mail_id = models.OneToOneField(MailId, on_delete=models.CASCADE)
-    password = models.CharField(max_length=50)
+#     first_name = models.CharField(max_length=20)
+#     last_name = models.CharField(max_length=20)
+#     mail_id = models.OneToOneField(MailId, on_delete=models.CASCADE)
+#     password = models.CharField(max_length=50)
 
-    class Meta:
-        db_table = "User"
+#     class Meta:
+#         db_table = "User"
 
 class Project(models.Model):
 

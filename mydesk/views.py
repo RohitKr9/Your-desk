@@ -1,4 +1,4 @@
-from django.shortcuts import render
+
 from django.views import View
 from mydesk.models import User, MailId, Project,Task
 from django.http.response import JsonResponse
@@ -7,6 +7,8 @@ import json
 from django.forms.models import model_to_dict
 from Accounts.tokenauthentication import JWTAuthentication
 from django.contrib.auth import authenticate, login, mixins
+from rest_framework.views import APIView
+from rest_framework.permissions import IsAuthenticated
 
 from django.contrib.auth import get_user_model
 
@@ -110,7 +112,10 @@ class UserLogin(View):
             return JsonResponse({"msg":"incorrect password"}, status = 401)
 
 
-class ProjectView(View):
+class ProjectView(APIView):
+
+    authentication_classes=[JWTAuthentication]
+    permission_classes=[IsAuthenticated]
 
     def post(self, request):
         data = json.loads(request.body)
@@ -149,7 +154,10 @@ class ProjectView(View):
 
         return JsonResponse(dict_data, status = 200)
 
-class tasksView(View):
+class tasksView(APIView):
+
+    authentication_classes=[JWTAuthentication]
+    permission_classes=[IsAuthenticated]
 
     def post(self, request):
         data = json.loads(request.body)

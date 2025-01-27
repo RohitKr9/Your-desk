@@ -25,7 +25,7 @@ class JWTAuthentication(BaseAuthentication):
         token = None
         if header and header.startswith("Bearer "):
             token = header.split(" ")[1]
-        
+
         decoded_token = jwt.decode(token, key = key, algorithms=['HS256'])
 
         #now we will check expiration 
@@ -40,9 +40,8 @@ class JWTAuthentication(BaseAuthentication):
         email = decoded_token.get("email", None)
         if email is None:
             raise AuthenticationFailed("Email is missing in token")
-        
-        if User.objects.filter(email = email).exists():
-            return email
-        
+        user = User.objects.filter(email=email).first()
+        if user:
+            return user,None #we are returning a tuple bcoz authentication method which I am overridig expects tuple to be returned
         raise AuthenticationFailed("Email not found")
     

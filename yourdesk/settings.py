@@ -95,12 +95,12 @@ AUTH_PASSWORD_VALIDATORS = [
 ]
 
 REST_FRAMEWORK = {
-    'DEFAULT_AUTHENTICATION_CLASSES': [
-        'Accounts.tokenauthentication.JWTAuthentocation',  
-    ],
-    'DEFAULT_PERMISSION_CLASSES': [
-        'rest_framework.permissions.IsAuthenticated',  
-    ]
+    # 'DEFAULT_AUTHENTICATION_CLASSES': [
+    #     'Accounts.tokenauthentication.JWTAuthentication',  
+    # ],
+    # 'DEFAULT_PERMISSION_CLASSES': [
+    #     'rest_framework.permissions.IsAuthenticated',  
+    # ]
 }
 
 

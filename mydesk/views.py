@@ -200,4 +200,13 @@ class tasksView(APIView):
         serializer = TaskSerializer(task)
         return Response(serializer.data)
 
+    def put(self, request, id):
+
+        task = Task.objects.get(id=id)
+        serializer = TaskSerializer(task, data = request.data, partial = True)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data, status=HTTP_201_CREATED)
+        print(serializer.errors)
+        return Response(status=HTTP_400_BAD_REQUEST)
         

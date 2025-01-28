@@ -8,9 +8,10 @@ from Accounts.tokenauthentication import JWTAuthentication
 from django.contrib.auth import authenticate, login
 from rest_framework.views import APIView
 from rest_framework.permissions import IsAuthenticated
-from .serializers import ProjectSerializer, TaskSerializer
+from .serializers import ProjectSerializer, TaskSerializer, CommentSerializer
 from rest_framework.response import Response
 from rest_framework.status import HTTP_201_CREATED, HTTP_400_BAD_REQUEST
+from .pagination import CommentPagination
 
 from django.contrib.auth import get_user_model
 
@@ -210,3 +211,24 @@ class tasksView(APIView):
         print(serializer.errors)
         return Response(status=HTTP_400_BAD_REQUEST)
         
+class CommentView(APIView):
+
+    authentication_classes=[JWTAuthentication]
+    permission_classes=[IsAuthenticated]
+
+    def get(self, request, id):
+        #we will use pagination for comments bcoz may be there will lots of comment
+        task = Task.objects.get(id = id)
+        comments = task.comments.all()
+        paginator = CommentPagination()
+        paginated_comments = paginator.paginate_queryset(comments, request)
+        serializer = CommentSerializer(paginated_comments, many=True)
+        return paginator.get_paginated_response(serializer.data)
+
+    def post(self, request):
+        serializer = CommentSerializer(data = request.data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data, status=HTTP_201_CREATED)
+        print(serializer.errors)
+        return Response(status=HTTP_400_BAD_REQUEST)

@@ -50,6 +50,12 @@ class Task(models.Model):
     class Meta:
         db_table = "Tasks"
 
+class Comment(models.Model):
+    content = models.CharField(max_length = 255)
+    time_stamp = models.DateTimeField()
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name="comments")
+    task = models.ForeignKey(Task, on_delete=models.CASCADE, related_name="comments")
+
 class Team(models.Model):
 
     name = models.CharField(max_length=100)

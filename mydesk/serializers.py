@@ -1,5 +1,5 @@
 from rest_framework.serializers import ModelSerializer
-from .models import Project, Task
+from .models import Project, Task, Comment
 
 class ProjectSerializer(ModelSerializer):
 
@@ -24,3 +24,8 @@ class TaskSerializer(ModelSerializer):
         model = Task
         fields = '__all__'
 
+class CommentSerializer(ModelSerializer):
+
+    class Meta:
+        model = Comment
+        fields = '__all__'

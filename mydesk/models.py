@@ -29,6 +29,7 @@ class Project(models.Model):
     start_date = models.DateField()
     end_date = models.DateField()
     overall_progress = models.IntegerField(validators=[MaxValueValidator(100), MinValueValidator(0)])
+    users = models.ManyToManyField(User, related_name="projects")
 
     class Meta:
         db_table = "Projects"

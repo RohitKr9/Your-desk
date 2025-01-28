@@ -9,6 +9,10 @@ from Accounts.tokenauthentication import JWTAuthentication
 from django.contrib.auth import authenticate, login, mixins
 from rest_framework.views import APIView
 from rest_framework.permissions import IsAuthenticated
+from .serializers import ProjectSerializer
+from rest_framework.response import Response
+from rest_framework.status import HTTP_201_CREATED, HTTP_400_BAD_REQUEST
+from Accounts.serializers import UserSerializer
 
 from django.contrib.auth import get_user_model
 
@@ -132,27 +136,41 @@ class ProjectView(APIView):
     
     def get(self, request, project_id):
 
-        project = Project.objects.get(id = project_id)
+        # project = Project.objects.get(id = project_id)
 
-        name = project.name
-        description = project.description
-        start_date = project.start_date
-        end_date = project.end_date
-        try:  
-            tasks = project.task_set.all().values('name', 'status')
-            tasks = list(tasks)
-        except:
-            pass
+        # name = project.name
+        # description = project.description
+        # start_date = project.start_date
+        # end_date = project.end_date
+        # users = list(project.users.all())
+        # try:  
+        #     tasks = project.task_set.all().values('name', 'status')
+        #     tasks = list(tasks)
+        # except:
+        #     pass
 
-        dict_data = {
-            'name' : name,
-            'description' : description,
-            'start_date' : start_date,
-            'end_date' : end_date,
-            'tasks' : tasks
-        }
+        # dict_data = {
+        #     'name' : name,
+        #     'description' : description,
+        #     'start_date' : start_date,
+        #     'end_date' : end_date,
+        #     'tasks' : tasks,
+        #     'users' :users
+        # }
 
-        return JsonResponse(dict_data, status = 200)
+        # return JsonResponse(dict_data, status = 200)
+        project = Project.objects.get(id=project_id)
+        serializer = ProjectSerializer(project)
+        return Response(serializer.data, status=200)
+
+    def put(self, request, project_id):
+        project = Project.objects.get(id=project_id)
+        serializer = ProjectSerializer(project, data = request.data, partial = True)
+        if serializer.is_valid():
+            serializer.save()
+            return Response({"msg":"Data has been Updated"}, status=HTTP_201_CREATED)
+        return Response(status=HTTP_400_BAD_REQUEST)
+
 
 class tasksView(APIView):
 

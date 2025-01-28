@@ -1,5 +1,5 @@
 from rest_framework.serializers import ModelSerializer
-from .models import Project
+from .models import Project, Task
 
 class ProjectSerializer(ModelSerializer):
 
@@ -17,3 +17,10 @@ class ProjectSerializer(ModelSerializer):
             if user_id not in users_list:
                 project.users.add(user_id)
         return project
+    
+class TaskSerializer(ModelSerializer):
+
+    class Meta:
+        model = Task
+        fields = '__all__'
+

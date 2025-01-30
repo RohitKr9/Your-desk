@@ -39,3 +39,38 @@ class OneToOneConsumer(AsyncConsumer):
         await self.send(
             text_data = json.dumps(message)
         )
+
+class GroupConsumer(AsyncConsumer):
+
+    async def connect(self):
+        url = self.scope['url']
+        group_id = url.strip('/').split('/')[-1]
+        
+        self.room_name = f"GroupChat{group_id}"
+        self.group_name = f"GroupChat{group_id}"
+
+        await self.channel_layer.group_add(self.room_name, self.group_name)
+        await self.accept()
+
+    async def disconnect(self):
+        await self.channel_layer.group_discard(self.room_name, self.group_name)
+
+    async def receive(self, text_msg):
+        user = self.scope['user']
+        if not user.is_authenticated:
+            await self.close(code = 4001)
+
+        message = json.loads(text_msg)['message']
+
+        await self.channel_layer.group_send(
+            self.group_name,{
+                "type":"chat.message",
+                "message":message
+            }
+        )
+
+    async def chat_message(self, event):
+        message = event["message"]
+        await self.send(
+            text_data = json.dumps(message)
+        )

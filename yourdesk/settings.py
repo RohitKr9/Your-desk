@@ -24,6 +24,8 @@ ALLOWED_HOSTS = []
 # Application definition
 
 INSTALLED_APPS = [
+    "daphne",
+    "teamchat",
     "Accounts",
     "mydesk",
     "django.contrib.admin",
@@ -62,7 +64,8 @@ TEMPLATES = [
     },
 ]
 
-WSGI_APPLICATION = "yourdesk.wsgi.application"
+# WSGI_APPLICATION = "yourdesk.wsgi.application"
+ASGI_APPLICATION = "yourdesk.asgi.application"
 
 
 # Database
@@ -132,3 +135,13 @@ AUTHENTICATION_BACKENDS = [
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
 AUTH_USER_MODEL = "Accounts.User"
+
+CHANNEL_LAYERS = {
+    "default": {
+        "BACKEND": "channels_redis.core.RedisChannelLayer",
+        "CONFIG": {
+            #"hosts": [(env('REDIS_URL'))],
+            "hosts": [("127.0.0.1", 6379)],
+        },
+    },
+}
